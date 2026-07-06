@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Env / secrets
+.env
+
+# DB
+*.db
+*.sqlite3
+
+# ML artifacts (large/binary)
+ml/models/*.joblib
+ml/training/datasets/*
+
+# Node / dashboard
+dashboard/node_modules/
+dashboard/dist/
+dashboard/build/
+
+# OS/IDE
+.DS_Store
+.vscode/
+.idea/

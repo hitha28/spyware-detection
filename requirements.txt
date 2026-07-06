@@ -1,0 +1,17 @@
+androguard
+pefile
+lief
+# yara-python  # needs Python <3.12 or C++ Build Tools on Windows — revisit later
+psutil
+scapy
+pyshark
+pandas
+numpy
+scikit-learn
+joblib
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+pytest
+ruff
