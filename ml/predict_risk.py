@@ -1,41 +1,52 @@
 """
-TEMPORARY placeholder for Shreya's ML pipeline (Phase 2).
+TEMPORARY (Phase 2 fallback): loads a RandomForestClassifier trained on
+SYNTHETIC data (see ml/training/train_model.py) to unblock Phase 3
+integration/testing while Shreya's real ML pipeline is in progress.
 
-This exists to unblock Phase 3 (API integration/testing) while the real
-ML model is still in progress. It is NOT a trained classifier — just
-simple rule-based logic so predict_risk() has something real to call.
-
-Replace this with the real model from ml/training/train_model.py once
-it's ready. Function signature should stay the same so nothing else
-needs to change.
+Trained only on synthetic, made-up feature patterns — NOT real malware
+data. Replace with the real trained model once available, keeping this
+same function signature so nothing downstream needs to change.
 """
 
+from pathlib import Path
 
-def predict_risk(features: dict) -> float:
+import joblib
+import pandas as pd
+
+from ml.features.extract_static_features import extract_features, FEATURE_NAMES
+
+MODEL_PATH = Path(__file__).resolve().parent / "models" / "spyware_classifier.joblib"
+
+_model = None  # loaded lazily, once, on first use
+
+
+def _get_model():
+    """Load the trained model from disk, caching it after the first load."""
+    global _model
+    if _model is None:
+        _model = joblib.load(MODEL_PATH)
+    return _model
+
+
+def predict_risk(raw_static_result: dict) -> float:
     """
-    Fake risk scorer — NOT a trained model.
+    Predict a risk score using the (temporary, synthetic-trained) model.
 
     Args:
-        features: dict of extracted signals, e.g.
-            {
-                "requests_sms_permission": bool,
-                "requests_camera_permission": bool,
-                "requests_audio_permission": bool,
-                "suspicious_network_activity": bool,
-            }
+        raw_static_result: the dict returned by StaticAnalysisEngine.analyze()
 
     Returns:
         A float between 0.0 and 1.0 representing estimated risk.
     """
-    score = 0.3  # baseline
+    features = extract_features(raw_static_result)
 
-    if features.get("requests_sms_permission"):
-        score += 0.2
-    if features.get("requests_camera_permission"):
-        score += 0.15
-    if features.get("requests_audio_permission"):
-        score += 0.15
-    if features.get("suspicious_network_activity"):
-        score += 0.25
+    # Ensure feature order matches training data exactly
+    ordered_values = pd.DataFrame(
+        [[features.get(name, 0) for name in FEATURE_NAMES]],
+        columns=FEATURE_NAMES,
+    )
 
-    return min(score, 1.0)
+    model = _get_model()
+    probability_malicious = model.predict_proba(ordered_values)[0][1]
+
+    return float(probability_malicious)
