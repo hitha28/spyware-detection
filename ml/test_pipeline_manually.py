@@ -9,7 +9,8 @@ real integration test suite covers this.
 
 from ml.predict_risk import predict_risk
 
-# Simulates a SUSPICIOUS file's static analysis result
+# Simulates a SUSPICIOUS file's static analysis result — a realistic
+# combined permission set, matching patterns real spyware tends to request
 suspicious_result = {
     "file": "fake_spyware.apk",
     "file_type": "apk",
@@ -19,8 +20,15 @@ suspicious_result = {
         "status": "analyzed",
         "permissions": [
             "android.permission.READ_SMS",
+            "android.permission.SEND_SMS",
+            "android.permission.RECEIVE_SMS",
+            "android.permission.READ_PHONE_STATE",
+            "android.permission.GET_ACCOUNTS",
             "android.permission.RECORD_AUDIO",
             "android.permission.CAMERA",
+            "android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.WAKE_LOCK",
+            "android.permission.READ_CALL_LOG",
         ],
         "exported_components": [{"type": "activities", "name": "com.fake.Hidden"}],
         "embedded_urls": ["http://suspicious-server.example.com"],
