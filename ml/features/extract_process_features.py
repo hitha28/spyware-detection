@@ -19,7 +19,9 @@ import psutil
 COMMON_SAFE_PROCESS_NAMES = {
     "svchost.exe", "explorer.exe", "chrome.exe", "code.exe",
     "python.exe", "systemd", "dockerd",
+    "system idle process", "system",
 }
+
 
 
 def extract_process_features(pid: int) -> dict:

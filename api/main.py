@@ -1,13 +1,14 @@
 from fastapi import FastAPI
 
 from api.db.database import Base, engine
-from api.routers import scan
+from api.routers import scan, monitor
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 app.include_router(scan.router)
+app.include_router(monitor.router)
 
 
 @app.get("/")
