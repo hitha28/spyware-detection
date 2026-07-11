@@ -11,12 +11,14 @@ DATASET_DIR = BASE_DIR / "datasets"
 RAW_DIR = DATASET_DIR / "raw"
 PROCESSED_DIR = DATASET_DIR / "processed"
 
-DATASET_FILE = (
-    RAW_DIR
-    / "benign"
-    / "archive (1)"
-    / "drebin-215-dataset-5560malware-9476-benign.csv"
-)
+
+
+csv_files = list((RAW_DIR / "benign").rglob("*drebin*.csv"))
+
+if not csv_files:
+    raise FileNotFoundError("Drebin dataset not found.")
+
+DATASET_FILE = csv_files[0]
 
 print("Dataset location:")
 print(DATASET_FILE)

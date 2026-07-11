@@ -1,6 +1,8 @@
 import pandas as pd
 import joblib
 
+from pathlib import Path
+
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
@@ -21,7 +23,10 @@ import matplotlib.pyplot as plt
 DATASET_PATH = "ml/training/notebooks/datasets/processed/cleaned_dataset.csv"
 
 df = pd.read_csv(DATASET_PATH, low_memory=False)
+
+# Replace missing values
 df.replace("?", 0, inplace=True)
+
 print(df.head())
 print(df.columns.tolist())
 print(df["class"].head(10))
@@ -30,15 +35,11 @@ print(df["class"].head(10))
 # Features and Labels
 # ==============================
 
-# ==============================
-# Features and Labels
-# ==============================
-
 X = df.drop("class", axis=1)
 
 X = X.apply(pd.to_numeric, errors="coerce")
-
 X = X.fillna(0)
+
 y = df["class"]
 
 print(df["class"].unique())
@@ -94,7 +95,6 @@ print(f"F1 Score : {f1:.4f}")
 cm = confusion_matrix(y_test, predictions)
 
 disp = ConfusionMatrixDisplay(confusion_matrix=cm)
-
 disp.plot()
 
 plt.savefig("confusion_matrix.png")
@@ -102,16 +102,16 @@ plt.savefig("confusion_matrix.png")
 print("\nConfusion matrix saved!")
 
 # ==============================
-# Save Model
+# Save Model + Feature Names
 # ==============================
-
-from pathlib import Path
 
 MODEL_DIR = Path("ml/models")
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
 joblib.dump(model, MODEL_DIR / "spyware_classifier.joblib")
 
-print("Model saved successfully!")
+# Save feature names for prediction
+joblib.dump(X.columns.tolist(), MODEL_DIR / "feature_names.joblib")
 
 print("Model saved successfully!")
+print("Feature names saved successfully!")
