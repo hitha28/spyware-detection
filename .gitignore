@@ -26,3 +26,4 @@ dashboard/build/
 .vscode/
 .idea/
 spysentinel.db
+ml/training/notebooks/datasets/raw/
