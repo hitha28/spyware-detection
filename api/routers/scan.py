@@ -3,8 +3,8 @@ POST /scan — the main integration endpoint.
 
 Runs Shivanshi's StaticAnalysisEngine, converts results through
 indicator_adapter, gets a risk score from predict_risk() (currently the
-TEMPORARY synthetic-trained stub — see ml/predict_risk.py), combines both
-into a final_score, and persists everything to the database.
+TEMPORARY synthetic/real-Drebin-trained stub — see ml/predict_risk.py),
+combines both into a final_score, and persists everything to the database.
 """
 
 import shutil
@@ -45,7 +45,16 @@ async def scan_file(file: UploadFile = File(...), db: Session = Depends(get_db))
 
     try:
         # Run Shivanshi's static engine
-        raw_result = _engine.analyze(tmp_path)
+        try:
+            raw_result = _engine.analyze(tmp_path)
+        except NotImplementedError as e:
+            # PE (.exe) analysis isn't built yet — respond gracefully
+            # instead of crashing with a 500 error.
+            return {
+                "error": "unsupported_file_type",
+                "message": str(e),
+                "filename": file.filename,
+            }
 
         # Convert to flat indicator list
         indicator_dicts = flatten_static_result(raw_result)
@@ -58,7 +67,7 @@ async def scan_file(file: UploadFile = File(...), db: Session = Depends(get_db))
         else:
             static_score = 0.0
 
-        # Get ML risk score (currently the temporary synthetic-trained stub)
+        # Get ML risk score (currently the temporary synthetic/real-Drebin-trained stub)
         ml_score = predict_risk(raw_result)
 
         final_score = 0.5 * static_score + 0.5 * ml_score
