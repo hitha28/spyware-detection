@@ -1,0 +1,56 @@
+.risk-gauge {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.risk-gauge__ring {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(
+    var(--ring-color) var(--sweep),
+    var(--border) var(--sweep)
+  );
+  position: relative;
+  animation: sweep-in 0.8s ease-out;
+}
+
+.risk-gauge__ring::before {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+}
+
+.risk-gauge__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.risk-gauge__number {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.risk-gauge__label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@keyframes sweep-in {
+  from {
+    background: conic-gradient(var(--border) 0deg, var(--border) 360deg);
+  }
+}

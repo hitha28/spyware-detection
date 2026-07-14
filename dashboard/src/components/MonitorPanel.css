@@ -1,0 +1,57 @@
+.monitor-panel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.monitor-panel h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.monitor-panel__hint {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 0 0 16px;
+}
+
+.monitor-panel button {
+  background: transparent;
+  color: var(--accent-teal);
+  border: 1px solid var(--accent-teal);
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.monitor-panel button:disabled {
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+
+.monitor-panel__error {
+  color: var(--accent-red);
+  font-size: 13px;
+  margin-top: 16px;
+}
+
+.monitor-panel__result {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.monitor-panel__count {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.monitor-panel__count-number {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 16px;
+}

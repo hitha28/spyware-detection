@@ -1,0 +1,53 @@
+.indicator-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border-left: 3px solid var(--border);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.indicator--critical { border-left-color: var(--accent-red); }
+.indicator--high { border-left-color: #F97316; }
+.indicator--medium { border-left-color: var(--accent-amber); }
+.indicator--low { border-left-color: var(--text-secondary); }
+
+.indicator__severity {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  min-width: 60px;
+}
+
+.indicator__source {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-teal);
+  min-width: 60px;
+}
+
+.indicator__description {
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.indicator-empty {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-style: italic;
+  margin-top: 16px;
+}
