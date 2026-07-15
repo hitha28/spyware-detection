@@ -2,12 +2,18 @@ rule Spyware_Generic
 {
     meta:
         author = "SpySentinel Team"
-        description = "Placeholder generic spyware rule"
+        description = "Generic heuristic: combination of surveillance-related API strings"
+        severity = "medium"
 
     strings:
-        $spy = "spy"
-        $track = "track"
+        $sms_read = "READ_SMS"
+        $sms_send = "SEND_SMS"
+        $call_log = "READ_CALL_LOG"
+        $location = "ACCESS_FINE_LOCATION"
+        $record_audio = "RECORD_AUDIO"
+        $camera = "CAMERA"
+        $hidden_icon = "LAUNCHER_CATEGORY_HIDDEN"
 
     condition:
-        any of them
+        3 of them
 }
