@@ -1,92 +1,102 @@
 """
-Converts StaticAnalysisEngine.analyze() output into a flat list of
-{source, description, severity} dicts, ready for Indicator rows.
+Converts raw static-analysis output into the shared indicator schema
+(source, description, severity) before it's written to the DB.
 """
 
-# Permissions considered risky enough to flag, with an assigned severity.
-# Extend this table as the team identifies more indicators worth flagging.
 RISKY_PERMISSIONS = {
-    "android.permission.READ_SMS": "high",
-    "android.permission.SEND_SMS": "high",
-    "android.permission.RECEIVE_SMS": "high",
-    "android.permission.RECORD_AUDIO": "high",
+    "android.permission.RECORD_AUDIO": "medium",
     "android.permission.CAMERA": "medium",
+    "android.permission.READ_SMS": "high",
     "android.permission.ACCESS_FINE_LOCATION": "medium",
-    "android.permission.ACCESS_COARSE_LOCATION": "medium",
     "android.permission.READ_CONTACTS": "medium",
     "android.permission.READ_CALL_LOG": "high",
-    "android.permission.SYSTEM_ALERT_WINDOW": "medium",
 }
 
 
 def flatten_static_result(raw: dict) -> list[dict]:
-    """Take StaticAnalysisEngine.analyze() output and return a flat list
-    of indicator dicts: {source, description, severity}."""
-
+    """Convert StaticAnalysisEngine.analyze() output into a flat list of
+    {source, description, severity} indicator dicts."""
     indicators = []
     indicators.extend(_hash_indicators(raw.get("hash_matcher")))
     indicators.extend(_yara_indicators(raw.get("yara")))
     indicators.extend(_apk_indicators(raw.get("analysis"), raw.get("file_type")))
+    indicators.extend(_pe_indicators(raw.get("analysis"), raw.get("file_type")))
     return indicators
 
 
 def _hash_indicators(hash_result: dict | None) -> list[dict]:
-    """Turn check_hash() output into an indicator, if the file matched."""
-    if not hash_result or hash_result.get("status") != "malicious":
+    if not hash_result or hash_result.get("status") != "known_bad":
         return []
-
-    family = hash_result.get("family") or "unknown family"
-    reported_by = hash_result.get("source") or "unknown source"
     return [{
         "source": "hash",
-        "description": f"Known-bad hash match: {family} (reported by {reported_by})",
+        "description": f"Matches known-bad hash ({hash_result.get('family', 'unknown family')})",
         "severity": "critical",
     }]
 
 
 def _yara_indicators(yara_result: dict | None) -> list[dict]:
-    """Turn YaraScanner.scan() matches into one indicator per matched rule."""
-    if not yara_result or yara_result.get("status") != "matched":
+    if not yara_result:
         return []
-
     results = []
     for match in yara_result.get("matches", []):
-        rule_name = match.get("rule", "unknown_rule")
-        meta = match.get("meta", {})
-        # Rule authors can set meta["severity"] in the .yar file itself;
-        # fall back to "high" if a rule doesn't define one.
-        severity = meta.get("severity", "high")
-        description = meta.get("description", f"Matched YARA rule: {rule_name}")
         results.append({
             "source": "yara",
-            "description": description,
-            "severity": severity,
+            "description": f"Matched YARA rule: {match.get('rule', 'unknown')}",
+            "severity": match.get("meta", {}).get("severity", "medium"),
         })
     return results
 
 
 def _apk_indicators(analysis: dict | None, file_type: str | None) -> list[dict]:
-    """Turn APKAnalyzer.analyze() output into indicators: risky permissions
-    and exported components."""
-    if not analysis or file_type != "apk" or analysis.get("status") != "analyzed":
+    if not analysis or file_type != "apk":
         return []
-
     results = []
 
-    for permission in analysis.get("permissions", []):
-        severity = RISKY_PERMISSIONS.get(permission)
-        if severity:
+    for perm in analysis.get("permissions", []):
+        if perm in RISKY_PERMISSIONS:
             results.append({
                 "source": "apk",
-                "description": f"Requests risky permission: {permission}",
-                "severity": severity,
+                "description": f"Requests risky permission: {perm}",
+                "severity": RISKY_PERMISSIONS[perm],
             })
+
+    for url in analysis.get("embedded_urls", []):
+        results.append({
+            "source": "apk",
+            "description": f"Embedded URL found: {url}",
+            "severity": "low",
+        })
 
     for component in analysis.get("exported_components", []):
         results.append({
             "source": "apk",
             "description": f"Exported {component['type']}: {component['name']}",
             "severity": "low",
+        })
+
+    return results
+
+
+def _pe_indicators(analysis: dict | None, file_type: str | None) -> list[dict]:
+    """Turn PEAnalyzer.analyze() output into indicators: suspicious imports
+    and packer/obfuscation signals."""
+    if not analysis or file_type != "pe" or analysis.get("status") != "analyzed":
+        return []
+
+    results = []
+
+    for imp in analysis.get("suspicious_imports", []):
+        results.append({
+            "source": "pe",
+            "description": f"Imports {imp['function']} from {imp['dll']} — possible {imp['reason']}",
+            "severity": "high",
+        })
+
+    if analysis.get("packer_suspected"):
+        results.append({
+            "source": "pe",
+            "description": "Executable shows signs of packing/obfuscation (known packer section or high-entropy code section)",
+            "severity": "medium",
         })
 
     return results
