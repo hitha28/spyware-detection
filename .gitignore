@@ -26,3 +26,7 @@ dashboard/build/
 .vscode/
 .idea/
 spysentinel.db
+# PyInstaller build artifacts
+build/
+dist/
+*.spec

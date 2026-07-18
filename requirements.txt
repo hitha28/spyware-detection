@@ -17,3 +17,4 @@ pytest
 ruff
 python-dotenv
 python-multipart
+pyinstaller
