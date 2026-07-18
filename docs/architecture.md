@@ -2,6 +2,17 @@
 
 ## Known Setup Issues
 
+- **Trained ML model not committed.** `ml/models/spyware_classifier.joblib`
+  doesn't exist in the repo. `predict_risk()` will crash with
+  `FileNotFoundError` on a fresh clone. The PyInstaller `.exe` (P6-SRE10)
+  currently only works when built locally by whoever has the model file —
+  it isn't reproducible or shared yet. Needs the model committed, or a
+  release build shared separately.
+- **`yara-python` install issues on Windows.** Requires C++ Build Tools;
+  see commit history on `shivanshi-static-analysis` branch for details.
+- **`New-Item .env` file in repo root.** Stray PowerShell command typed as
+  a filename — the real `.env` for configurable risk-score weights
+  (P3-SRE6) was never created. Needs a real `.env` or `.env.example`.
 ## Shared Indicator Schema (P0-TEAM1)
 
 All analyzer modules (static, ML) ultimately produce indicators in this shape
