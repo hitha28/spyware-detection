@@ -2,8 +2,6 @@
 
 ## Known Setup Issues
 
-## Known Setup Issues
-
 - **Trained ML model not committed.** `ml/models/spyware_classifier.joblib`
   doesn't exist in the repo. `predict_risk()` will crash with
   `FileNotFoundError` on a fresh clone. The PyInstaller `.exe` (P6-SRE10)
