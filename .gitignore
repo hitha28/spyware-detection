@@ -13,7 +13,6 @@ venv/
 *.sqlite3
 
 # ML artifacts (large/binary)
-ml/models/*.joblib
 ml/training/datasets/*
 
 # Node / dashboard
